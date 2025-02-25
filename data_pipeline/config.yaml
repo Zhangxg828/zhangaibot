@@ -1,0 +1,19 @@
+solana_rpc: "https://api.mainnet-beta.solana.com"
+twitter_api:
+  keys:
+    - consumer_key: "your_key1"
+      consumer_secret: "your_secret1"
+      access_token: "your_token1"
+      access_token_secret: "your_token_secret1"
+    - consumer_key: "your_key2"
+      consumer_secret: "your_secret2"
+      access_token: "your_token2"
+      access_token_secret: "your_token_secret2"
+kafka:
+  bootstrap_servers: "localhost:9092"
+database:
+  dbname: "crypto_trading"
+  user: "your_user"
+  password: "your_password"
+  host: "localhost"
+  port: "5432"

@@ -1,0 +1,23 @@
+# 基础依赖
+tweepy==4.15.0              # Twitter API
+kafka-python==2.0.4         # Kafka消息队列
+pyyaml==6.0.2               # YAML配置文件解析
+pandas==2.2.3               # 数据处理
+numpy==2.2.3              # 数值计算
+
+# 机器学习和深度学习
+xgboost==2.1.4              # 代币评分模型
+torch==2.6.0                # PyTorch（价格预测、强化学习、自编码器、NLP交互）
+transformers==4.49.0        # Hugging Face Transformers（情绪分析、NLP交互）
+scikit-learn==1.6.1         # 孤立森林（异常检测）
+joblib==1.4.2               # 模型保存与加载
+
+# 交易所API
+ccxt==4.4.62                 # 交易所API集成
+
+# Web界面
+flask==3.1.0                # 控制面板
+
+# 安全
+cryptography==44.0.1        # 私钥加密
+psycopg2-binary==2.9.10  # PostgreSQL驱动
