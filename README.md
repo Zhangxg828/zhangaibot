@@ -1,3 +1,6 @@
+markdown
+自动换行
+复制
 # Crypto Trading Bot
 
 ## 安装
@@ -12,10 +15,12 @@
   ```bash
   docker build -t crypto_trading_bot .
   docker run -d -p 8000:8000 crypto_trading_bot
-  
 注意事项
 确保Kafka和Grafana服务运行。
 配置真实的API密钥。
+text
+自动换行
+复制
 - **作用**: 部署说明。
 - **部署注意**: 根据实际环境更新内容。
 
@@ -30,7 +35,6 @@
 2. **安装依赖**:
    ```bash
    pip install -r requirements.txt
-   
 配置Kafka:
 启动Kafka服务，创建solana_transactions和twitter_stream主题。
 启动服务:

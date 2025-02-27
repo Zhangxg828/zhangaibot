@@ -17,18 +17,23 @@ class TwitterConsumer:
             bootstrap_servers=self.config["kafka"]["bootstrap_servers"],
             value_serializer=lambda v: json.dumps(v).encode("utf-8")
         )
-        self.setup_client()
+        self.client = None  # 在__init__中显式声明
+        self.setup_client()  # 初始化client
 
     def setup_client(self):
         """初始化当前API Key的Twitter客户端"""
-        key = self.keys[self.current_key_idx]
-        self.client = tweepy.Client(
-            consumer_key=key["consumer_key"],
-            consumer_secret=key["consumer_secret"],
-            access_token=key["access_token"],
-            access_token_secret=key["access_token_secret"]
-        )
-        logger.info(f"使用 Twitter API Key {self.current_key_idx + 1}/{len(self.keys)}")
+        try:
+            key = self.keys[self.current_key_idx]
+            self.client = tweepy.Client(
+                consumer_key=key["consumer_key"],
+                consumer_secret=key["consumer_secret"],
+                access_token=key["access_token"],
+                access_token_secret=key["access_token_secret"]
+            )
+            logger.info(f"使用 Twitter API Key {self.current_key_idx + 1}/{len(self.keys)}")
+        except Exception as e:
+            logger.error(f"初始化Twitter客户端失败: {e}")
+            self.client = None  # 确保异常情况下client有定义
 
     def switch_key(self):
         """切换到下一个API Key"""
@@ -39,6 +44,8 @@ class TwitterConsumer:
     def fetch_tweets(self, query="MEME coin"):
         """获取Twitter数据并推送到Kafka"""
         try:
+            if self.client is None:
+                raise ValueError("Twitter客户端未初始化")
             tweets = self.client.search_recent_tweets(query=query, max_results=100)
             for tweet in tweets.data:
                 data = {"text": tweet.text, "id": tweet.id, "timestamp": str(tweet.created_at)}
@@ -48,13 +55,15 @@ class TwitterConsumer:
             if "Rate limit" in str(e):
                 logger.warning("达到API流量限制，切换Key")
                 self.switch_key()
-                time.sleep(15)  # 等待15秒后重试
+                time.sleep(15)
                 self.fetch_tweets(query)
             else:
                 logger.error(f"Twitter API错误: {e}")
+        except Exception as e:
+            logger.error(f"获取推文失败: {e}")
 
 if __name__ == "__main__":
     consumer = TwitterConsumer()
     while True:
         consumer.fetch_tweets()
-        time.sleep(60)  # 每分钟抓取一次
+        time.sleep(60)

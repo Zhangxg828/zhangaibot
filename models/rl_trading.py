@@ -26,12 +26,12 @@ class DQN(nn.Module):
 
 # 交易环境定义
 class TradingEnv:
-    def __init__(self, price_history):
-        self.price_history = price_history  # 历史价格序列
+    def __init__(self, price_data):  # 修改参数名为 price_data
+        self.price_history = price_data  # 将传入的参数赋值给实例变量
         self.current_step = 0
         self.balance = 1000  # 初始资金
         self.holdings = 0  # 持有代币数量
-        self.max_steps = len(price_history) - 1
+        self.max_steps = len(self.price_history) - 1
 
     def reset(self):
         """重置环境"""
@@ -164,9 +164,9 @@ class RLTrader:
         torch.save(self.policy_net.state_dict(), self.model_path)
         logger.info(f"模型保存至 {self.model_path}")
 
-    def train_on_history(self, price_history, episodes=100):
+    def train_on_history(self, history_prices, episodes=100):
         """基于历史数据训练模型"""
-        env = TradingEnv(price_history)
+        env = TradingEnv(history_prices)
         for episode in range(episodes):
             state = env.reset()
             total_reward = 0

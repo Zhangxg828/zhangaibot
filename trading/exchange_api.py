@@ -25,8 +25,11 @@ class GateIOAPI:
         """现货交易"""
         try:
             order = self.client.create_order(
-                symbol=symbol, type="market" if not price else "limit",
-                side=side, amount=amount, price=price
+                symbol=symbol,
+                type="market" if not price else "limit",
+                side=side,
+                amount=amount,
+                price=price
             )
             logger.info(f"现货交易: {side} {symbol}, 数量: {amount}")
             return order
@@ -40,14 +43,27 @@ class GateIOAPI:
             self.client.options["defaultType"] = "futures"
             self.client.set_leverage(leverage, symbol)
             order = self.client.create_order(
-                symbol=symbol, type="market", side=side, amount=amount
+                symbol=symbol,
+                type="market",
+                side=side,
+                amount=amount
             )
             if take_profit:
-                self.client.create_order(symbol=symbol, type="limit", side="sell" if side == "buy" else "buy",
-                                        amount=amount, price=take_profit)
+                self.client.create_order(
+                    symbol=symbol,
+                    type="limit",
+                    side="sell" if side == "buy" else "buy",
+                    amount=amount,
+                    price=take_profit
+                )
             if stop_loss:
-                self.client.create_order(symbol=symbol, type="stop", side="sell" if side == "buy" else "buy",
-                                        amount=amount, price=stop_loss)
+                self.client.create_order(
+                    symbol=symbol,
+                    type="market",  # 改为market类型
+                    side="sell" if side == "buy" else "buy",
+                    amount=amount,
+                    params={"stopPrice": stop_loss}  # 使用params设置止损价格
+                )
             logger.info(f"合约交易: {side} {symbol}, 杠杆: {leverage}")
             return order
         except Exception as e:

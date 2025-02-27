@@ -14,7 +14,7 @@ joblib==1.4.2               # 模型保存与加载
 
 # 交易所API
 ccxt==4.4.62                 # 交易所API集成
-
+solana==0.36.6  # Solana Python SDK
 # Web界面
 flask==3.1.0                # 控制面板
 
