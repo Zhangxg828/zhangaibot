@@ -9,9 +9,11 @@ logger = setup_logger("sentiment_analysis")
 
 class SentimentAnalyzer:
     def __init__(self, model_path="models/sentiment_model", use_gpu=True):
+        """初始化情绪分析模型"""
         self.model_path = model_path
         self.device = torch.device("cuda" if torch.cuda.is_available() and use_gpu else "cpu")
 
+        # 使用多语言BERT模型
         self.model_name = "nlptown/bert-base-multilingual-uncased-sentiment"  # noqa: nlptown is correct
         self.tokenizer = BertTokenizer.from_pretrained(self.model_name)
         self.model = BertForSequenceClassification.from_pretrained(self.model_name)
@@ -26,6 +28,7 @@ class SentimentAnalyzer:
         self.model.to(self.device)
         self.model.eval()
 
+        # 初始化情感词典（简单示例，可替换为专业词典）
         self.sentiment_dict = {
             "great": 0.8, "good": 0.5, "awesome": 0.7,
             "bad": -0.5, "scam": -0.8, "shit": -0.7
@@ -53,8 +56,8 @@ class SentimentAnalyzer:
         _dict_sentiment_scores = [self.sentiment_dict.get(word, 0.0) for word in words]
         return np.mean(_dict_sentiment_scores) if _dict_sentiment_scores else 0.0
 
-    def analyze(self, _analyze_texts, batch_size=32):
-        """分析文本情绪（支持批量）"""
+    def analyze(self, _analyze_texts, batch_size=32, source="twitter"):
+        """分析文本情绪，支持多种来源（Twitter、Discord、Telegram）"""
         try:
             if isinstance(_analyze_texts, str):
                 _analyze_texts = [_analyze_texts]
@@ -76,7 +79,7 @@ class SentimentAnalyzer:
                 final_scores = [(s.item() + d) / 2 for s, d in zip(_batch_analyze_scores, dict_scores)]
                 all_scores.extend(final_scores)
 
-            logger.info(f"分析 {len(_analyze_texts)} 条文本，平均情绪得分: {np.mean(all_scores):.3f}")
+            logger.info(f"分析 {len(_analyze_texts)} 条 {source} 文本，平均情绪得分: {np.mean(all_scores):.3f}")
             return all_scores if len(_analyze_texts) > 1 else all_scores[0]
         except Exception as e:
             logger.error(f"情绪分析错误: {e}")
@@ -97,7 +100,7 @@ class SentimentAnalyzer:
 
             optimizer = torch.optim.AdamW(self.model.parameters(), lr=2e-5)
             self.model.train()
-            last_loss = 0.0  # 初始化last_loss
+            last_loss = 0.0
 
             for epoch in range(epochs):
                 for i in range(0, len(texts_train), batch_size):

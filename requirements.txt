@@ -1,23 +1,37 @@
 # 基础依赖
-tweepy==4.15.0              # Twitter API
-kafka-python==2.0.4         # Kafka消息队列
+tweepy==4.15.0              # Twitter API交互，用于采集Twitter数据
+kafka-python==2.0.4         # Kafka消息队列，用于实时数据流
 pyyaml==6.0.2               # YAML配置文件解析
-pandas==2.2.3               # 数据处理
-numpy==2.2.3              # 数值计算
+pandas==2.2.3               # 数据处理，用于特征提取和分析
+numpy==2.2.3                # 数值计算，用于评分、预测等
 
 # 机器学习和深度学习
-xgboost==2.1.4              # 代币评分模型
-torch==2.6.0                # PyTorch（价格预测、强化学习、自编码器、NLP交互）
-transformers==4.49.0        # Hugging Face Transformers（情绪分析、NLP交互）
-scikit-learn==1.6.1         # 孤立森林（异常检测）
+xgboost==2.1.4              # 代币评分模型（XGBoost）
+torch==2.6.0                # PyTorch，用于价格预测、强化学习、自编码器和NLP交互
+transformers==4.49.0        # Hugging Face Transformers，用于情绪分析和NLP交互
+scikit-learn==1.6.1         # 孤立森林（异常检测）、数据拆分和特征预处理
 joblib==1.4.2               # 模型保存与加载
 
-# 交易所API
-ccxt==4.4.62                 # 交易所API集成
-solana==0.36.6  # Solana Python SDK
-# Web界面
-flask==3.1.0                # 控制面板
+# 交易所和区块链
+ccxt==4.4.62                # 交易所API集成（如Binance、Gate.io）
+solana==0.36.6              # Solana区块链交互，用于链上数据采集
+websockets==12.0            # WebSocket支持，用于Binance实时数据流
 
-# 安全
-cryptography==44.0.1        # 私钥加密
-psycopg2-binary==2.9.10  # PostgreSQL驱动
+# Web和交互
+flask==3.1.0                # Web控制面板和数据看板（Flask）
+cmd2==2.4.3                 # 命令行界面，支持CLI交互
+
+# 社群数据采集
+telethon==1.36.0            # Telegram客户端，用于采集Telegram社群消息
+discord.py==2.3.2           # Discord客户端，用于采集Discord社群消息
+
+# 安全和数据库
+cryptography==44.0.1        # 数据加密（Fernet），用于保护敏感数据
+psycopg2-binary==2.9.10     # PostgreSQL驱动，用于数据库连接
+
+# 数据看板和网络监控
+ping3==4.0.8                # 网络ping，用于看板网络状态监控
+pytz==2024.1                # 时区支持，用于看板显示多地时间
+
+# 第三方API支持
+requests==2.32.3            # HTTP请求，用于Glassnode和LunarCrush API调用

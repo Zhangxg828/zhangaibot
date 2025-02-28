@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Crypto Trading Dashboard</title>
+    <!-- Plotly在线CDN，若失败则加载本地静态文件 -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>window.Plotly || document.write('<script src="/static/plotly-latest.min.js"><\/script>')</script>
+    <style>
+        body { background: #1a1a2e; color: #e0e0e0; font-family: Arial, sans-serif; margin: 0; }
+        .container { display: flex; flex-wrap: wrap; padding: 20px; }
+        .panel { background: #16213e; border-radius: 10px; padding: 20px; margin: 10px; }
+        .coins { width: 20%; }
+        .charts { width: 50%; text-align: center; }
+        .info { width: 25%; }
+        h1 { color: #00d4ff; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        a { color: #00d4ff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Crypto Trading Dashboard</h1>
+    <div class="container">
+        <div class="panel coins">
+            <h2>Valuable Cryptocurrencies</h2>
+            <table>
+                <tr><th>Name</th><th>Price</th></tr>
+                {% for coin in coins %}
+                <tr>
+                    <td><a href="https://{{ coin.exchange }}.com/trade/{{ coin.name }}_USDT" target="_blank">{{ coin.name }}</a></td>
+                    <td>{{ coin.price }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="panel charts">
+            <h2>Real-Time Market Data</h2>
+            <div id="btc_chart"></div>
+            <div id="eth_chart"></div>
+            <h3>Fear Index: {{ fear_index }}</h3>
+        </div>
+
+        <div class="panel info">
+            <h2>Community Topics</h2>
+            <ul>
+                {% for topic in topics %}
+                <li><a href="{{ topic.source }}" target="_blank">{{ topic.title }}</a></li>
+                {% endfor %}
+            </ul>
+            <h2>Portfolio</h2>
+            <table>
+                <tr><th>Coin</th><th>Amount</th><th>Value</th><th>P/L</th></tr>
+                {% for item in portfolio %}
+                <tr><td>{{ item.coin }}</td><td>{{ item.amount }}</td><td>{{ item.value }}</td><td>{{ item.profit_loss }}</td></tr>
+                {% endfor %}
+            </table>
+            <h2>Strategy</h2>
+            <p>Stop Profit: {{ strategy.stop_profit }}%</p>
+            <p>Stop Loss: {{ strategy.stop_loss }}%</p>
+            <h2>Balances</h2>
+            <p>Gate: {{ balances.gate }}</p>
+            <p>Binance: {{ balances.binance }}</p>
+            <p>Total P/L: {{ balances.total_profit_loss }}</p>
+            <h2>Times</h2>
+            <p>US: {{ times.us }}</p>
+            <p>Beijing: {{ times.beijing }}</p>
+            <p>Europe: {{ times.europe }}</p>
+            <h2>Network Status</h2>
+            <p>Solana: {{ '%.2f' % network_status.solana if network_status.solana else 'N/A' }} ms</p>
+            <p>Gate: {{ '%.2f' % network_status.gate if network_status.gate else 'N/A' }} ms</p>
+            <p>Binance: {{ '%.2f' % network_status.binance if network_status.binance else 'N/A' }} ms</p>
+        </div>
+    </div>
+
+    <!--suppress JSUnresolvedVariable -->
+    <script>
+        // 使用let替代var，提供块作用域
+        let btcData = {{ btc_data | tojson }};  // Jinja2渲染的BTC数据
+        let ethData = {{ eth_data | tojson }};  // Jinja2渲染的ETH数据
+        let layout = {
+            plot_bgcolor: "#16213e",
+            paper_bgcolor: "#16213e",
+            font: { color: "#e0e0e0" },
+            xaxis: { title: "Time" },
+            yaxis: { title: "Price" }
+        };
+
+        Plotly.newPlot("btc_chart", [{
+            x: btcData.map(d => new Date(d.time)),
+            open: btcData.map(d => d.open),
+            high: btcData.map(d => d.high),
+            low: btcData.map(d => d.low),
+            close: btcData.map(d => d.close),
+            type: "candlestick"
+        }], Object.assign({title: "BTC/USDT"}, layout));
+
+        Plotly.newPlot("eth_chart", [{
+            x: ethData.map(d => new Date(d.time)),
+            open: ethData.map(d => d.open),
+            high: ethData.map(d => d.high),
+            low: ethData.map(d => d.low),
+            close: ethData.map(d => d.close),
+            type: "candlestick"
+        }], Object.assign({title: "ETH/USDT"}, layout));
+    </script>
+</body>
+</html>

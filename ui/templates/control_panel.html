@@ -1,59 +1,124 @@
 <!DOCTYPE html>
-<html lang="en"> <!-- 添加lang属性 -->
+<html lang="en">
 <head>
     <title>Trading Bot Control Panel</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { color: #333; }
+        .section { margin-bottom: 20px; }
+        label { display: block; margin: 5px 0; }
+    </style>
 </head>
 <body>
     <h1>Crypto Trading Bot Control Panel</h1>
     <form method="POST">
-        <h2>Twitter API Keys</h2>
-        <label for="twitter_key_count">Number of Keys:
-            <input type="number" id="twitter_key_count" name="twitter_key_count" value="{{ config.twitter_api.keys|length }}">
-        </label><br>
-        {% for i in range(config.twitter_api.keys|length) %}
-        <div>
-            <label for="twitter_key_{{ i }}">Key {{ i+1 }}:
-                <input type="text" id="twitter_key_{{ i }}" name="twitter_key_{{ i }}" value="{{ config.twitter_api.keys[i].consumer_key }}" placeholder="Consumer Key">
-            </label><br>
-            <label for="twitter_secret_{{ i }}">Secret:
-                <input type="text" id="twitter_secret_{{ i }}" name="twitter_secret_{{ i }}" value="{{ config.twitter_api.keys[i].consumer_secret }}" placeholder="Consumer Secret">
-            </label><br>
-            <label for="twitter_token_{{ i }}">Token:
-                <input type="text" id="twitter_token_{{ i }}" name="twitter_token_{{ i }}" value="{{ config.twitter_api.keys[i].access_token }}" placeholder="Access Token">
-            </label><br>
-            <label for="twitter_token_secret_{{ i }}">Token Secret:
-                <input type="text" id="twitter_token_secret_{{ i }}" name="twitter_token_secret_{{ i }}" value="{{ config.twitter_api.keys[i].access_token_secret }}" placeholder="Token Secret">
-            </label><br>
+        <div class="section">
+            <h2>Twitter API</h2>
+            <label><input type="checkbox" name="twitter_enabled" {% if config.twitter_api.enabled %}checked{% endif %}> Enabled</label>
+            <label for="twitter_key_count">Number of Keys:
+                <input type="number" id="twitter_key_count" name="twitter_key_count" value="{{ config.twitter_api.keys|length }}">
+            </label>
+            {% for i in range(config.twitter_api.keys|length) %}
+            <div>
+                <label for="twitter_key_{{ i }}">Key {{ i+1 }}:
+                    <input type="text" id="twitter_key_{{ i }}" name="twitter_key_{{ i }}" value="{{ config.twitter_api.keys[i].consumer_key }}">
+                </label>
+                <label for="twitter_secret_{{ i }}">Secret:
+                    <input type="text" id="twitter_secret_{{ i }}" name="twitter_secret_{{ i }}" value="{{ config.twitter_api.keys[i].consumer_secret }}">
+                </label>
+                <label for="twitter_token_{{ i }}">Token:
+                    <input type="text" id="twitter_token_{{ i }}" name="twitter_token_{{ i }}" value="{{ config.twitter_api.keys[i].access_token }}">
+                </label>
+                <label for="twitter_token_secret_{{ i }}">Token Secret:
+                    <input type="text" id="twitter_token_secret_{{ i }}" name="twitter_token_secret_{{ i }}" value="{{ config.twitter_api.keys[i].access_token_secret }}">
+                </label>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
 
-        <h2>Gate.io API</h2>
-        <label for="gateio_key">API Key:
-            <input type="text" id="gateio_key" name="gateio_key" value="{{ config.gateio_api.api_key }}">
-        </label><br>
-        <label for="gateio_secret">Secret:
-            <input type="text" id="gateio_secret" name="gateio_secret" value="{{ config.gateio_api.secret }}">
-        </label><br>
+        <div class="section">
+            <h2>Binance API</h2>
+            <label><input type="checkbox" name="binance_enabled" {% if config.binance_api.enabled %}checked{% endif %}> Enabled</label>
+            <label for="binance_symbols">Symbols (comma-separated):
+                <input type="text" id="binance_symbols" name="binance_symbols" value="{{ ','.join(config.binance_api.symbols) }}">
+            </label>
+        </div>
 
-        <h2>Trading Parameters</h2>
-        <label for="leverage">Leverage:
-            <input type="number" id="leverage" name="leverage" value="{{ config.trading_params.leverage }}">
-        </label><br>
-        <label for="take_profit">Take Profit (%):
-            <input type="number" step="0.1" id="take_profit" name="take_profit" value="{{ config.trading_params.take_profit_percentage }}">
-        </label><br>
-        <label for="stop_loss">Stop Loss (%):
-            <input type="number" step="0.1" id="stop_loss" name="stop_loss" value="{{ config.trading_params.stop_loss_percentage }}">
-        </label><br>
-        <label for="max_position">Max Position (%):
-            <input type="number" step="0.1" id="max_position" name="max_position" value="{{ config.trading_params.max_position }}">
-        </label><br>
-        <label for="daily_trade_limit">Daily Trade Limit:
-            <input type="number" id="daily_trade_limit" name="daily_trade_limit" value="{{ config.trading_params.daily_trade_limit }}">
-        </label><br>
-        <label for="circuit_breaker">Circuit Breaker Loss (%):
-            <input type="number" step="0.1" id="circuit_breaker" name="circuit_breaker" value="{{ config.trading_params.circuit_breaker_loss }}">
-        </label><br>
+        <div class="section">
+            <h2>Discord API</h2>
+            <label><input type="checkbox" name="discord_enabled" {% if config.discord_api.enabled %}checked{% endif %}> Enabled</label>
+            <label for="discord_api_id">API ID:
+                <input type="text" id="discord_api_id" name="discord_api_id" value="{{ config.discord_api.api_id }}">
+            </label>
+            <label for="discord_api_hash">API Hash:
+                <input type="text" id="discord_api_hash" name="discord_api_hash" value="{{ config.discord_api.api_hash }}">
+            </label>
+            <label for="discord_channels">Channels (comma-separated):
+                <input type="text" id="discord_channels" name="discord_channels" value="{{ ','.join(config.discord_api.channels) }}">
+            </label>
+        </div>
+
+        <div class="section">
+            <h2>Telegram API</h2>
+            <label><input type="checkbox" name="telegram_enabled" {% if config.telegram_api.enabled %}checked{% endif %}> Enabled</label>
+            <label for="telegram_api_id">API ID:
+                <input type="text" id="telegram_api_id" name="telegram_api_id" value="{{ config.telegram_api.api_id }}">
+            </label>
+            <label for="telegram_api_hash">API Hash:
+                <input type="text" id="telegram_api_hash" name="telegram_api_hash" value="{{ config.telegram_api.api_hash }}">
+            </label>
+            <label for="telegram_channels">Channels (comma-separated):
+                <input type="text" id="telegram_channels" name="telegram_channels" value="{{ ','.join(config.telegram_api.channels) }}">
+            </label>
+        </div>
+
+        <div class="section">
+            <h2>Glassnode API</h2>
+            <label><input type="checkbox" name="glassnode_enabled" {% if config.glassnode_api.enabled %}checked{% endif %}> Enabled</label>
+            <label for="glassnode_api_key">API Key:
+                <input type="text" id="glassnode_api_key" name="glassnode_api_key" value="{{ config.glassnode_api.api_key }}">
+            </label>
+        </div>
+
+        <div class="section">
+            <h2>LunarCrush API</h2>
+            <label><input type="checkbox" name="lunarcrush_enabled" {% if config.lunarcrush_api.enabled %}checked{% endif %}> Enabled</label>
+            <label for="lunarcrush_api_key">API Key:
+                <input type="text" id="lunarcrush_api_key" name="lunarcrush_api_key" value="{{ config.lunarcrush_api.api_key }}">
+            </label>
+        </div>
+
+        <div class="section">
+            <h2>Gate.io API</h2>
+            <label for="gateio_key">API Key:
+                <input type="text" id="gateio_key" name="gateio_key" value="{{ config.gateio_api.api_key }}">
+            </label>
+            <label for="gateio_secret">Secret:
+                <input type="text" id="gateio_secret" name="gateio_secret" value="{{ config.gateio_api.secret }}">
+            </label>
+        </div>
+
+        <div class="section">
+            <h2>Trading Parameters</h2>
+            <label for="leverage">Leverage:
+                <input type="number" id="leverage" name="leverage" value="{{ config.trading_params.leverage }}">
+            </label>
+            <label for="take_profit">Take Profit (%):
+                <input type="number" step="0.1" id="take_profit" name="take_profit" value="{{ config.trading_params.take_profit_percentage }}">
+            </label>
+            <label for="stop_loss">Stop Loss (%):
+                <input type="number" step="0.1" id="stop_loss" name="stop_loss" value="{{ config.trading_params.stop_loss_percentage }}">
+            </label>
+            <label for="max_position">Max Position (%):
+                <input type="number" step="0.1" id="max_position" name="max_position" value="{{ config.trading_params.max_position }}">
+            </label>
+            <label for="daily_trade_limit">Daily Trade Limit:
+                <input type="number" id="daily_trade_limit" name="daily_trade_limit" value="{{ config.trading_params.daily_trade_limit }}">
+            </label>
+            <label for="circuit_breaker">Circuit Breaker Loss (%):
+                <input type="number" step="0.1" id="circuit_breaker" name="circuit_breaker" value="{{ config.trading_params.circuit_breaker_loss }}">
+            </label>
+        </div>
 
         <input type="submit" value="Save">
     </form>

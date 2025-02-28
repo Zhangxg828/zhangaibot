@@ -1,19 +1,63 @@
-solana_rpc: "https://api.mainnet-beta.solana.com"
-twitter_api:
-  keys:
-    - consumer_key: "your_key1"
-      consumer_secret: "your_secret1"
-      access_token: "your_token1"
-      access_token_secret: "your_token_secret1"
-    - consumer_key: "your_key2"
-      consumer_secret: "your_secret2"
-      access_token: "your_token2"
-      access_token_secret: "your_token_secret2"
-kafka:
-  bootstrap_servers: "localhost:9092"
-database:
-  dbname: "crypto_trading"
-  user: "your_user"
-  password: "your_password"
-  host: "localhost"
-  port: "5432"
+solana_rpc: "wss://api.mainnet-beta.solana.com"  # Solana WebSocket地址，用于连接Solana区块链节点
+
+twitter_api:  # Twitter API配置，用于采集Twitter社群数据
+  enabled: true  # 是否启用Twitter数据采集，true为启用，false为禁用
+  keys:  # Twitter API密钥列表，可配置多个账号
+    - consumer_key: "your_key1"  # Twitter Consumer Key，从Twitter Developer Portal获取
+      consumer_secret: "your_secret1"  # Twitter Consumer Secret，从Twitter Developer Portal获取
+      access_token: "your_token1"  # Twitter Access Token，从Twitter Developer Portal获取
+      access_token_secret: "your_token_secret1"  # Twitter Access Token Secret，从Twitter Developer Portal获取
+    - consumer_key: "your_key2"  # 第二个Twitter账号的Consumer Key
+      consumer_secret: "your_secret2"  # 第二个Twitter账号的Consumer Secret
+      access_token: "your_token2"  # 第二个Twitter账号的Access Token
+      access_token_secret: "your_token_secret2"  # 第二个Twitter账号的Access Token Secret
+
+kafka:  # Kafka消息队列配置，用于实时数据流传输
+  bootstrap_servers: "localhost:9092"  # Kafka服务器地址，格式为"host:port"
+
+database:  # 数据库配置，用于存储交易记录和分析数据
+  dbname: "crypto_trading"  # 数据库名称
+  user: "your_user"  # 数据库用户名
+  password: "your_password"  # 数据库密码
+  host: "localhost"  # 数据库主机地址
+  port: "5432"  # 数据库端口，默认PostgreSQL为5432
+
+pump_api:  # Pump链API配置（如Pump.fun），用于采集Pump链新代币数据
+  enabled: true  # 是否启用Pump链数据采集，true为启用，false为禁用
+  token: "your_pump_api_token"  # Pump API密钥，若需要认证则从Pump官方获取
+
+binance_api:  # Binance API配置，用于WebSocket采集K线、价格等数据
+  enabled: true  # 是否启用Binance数据采集，true为启用，false为禁用
+  symbols: ["BTCUSDT", "ETHUSDT"]  # Binance监控的交易对列表，用逗号分隔
+
+telegram_api:  # Telegram API配置，用于采集Telegram社群消息
+  enabled: true  # 是否启用Telegram数据采集，true为启用，false为禁用
+  api_id: "your_telegram_api_id"  # Telegram API ID，从my.telegram.org获取
+  api_hash: "your_telegram_api_hash"  # Telegram API Hash，从my.telegram.org获取
+  channels: ["CryptoChat", "BTCUpdates"]  # Telegram频道或群组列表，用逗号分隔
+
+discord_api:  # Discord API配置，用于采集Discord社群消息
+  enabled: true  # 是否启用Discord数据采集，true为启用，false为禁用
+  bot_token: "your_discord_bot_token"  # Discord Bot Token，从Discord Developer Portal获取
+  channels: ["discord_channel_1", "discord_channel_2"]  # Discord频道列表，用逗号分隔
+
+glassnode_api:  # Glassnode API配置，用于获取链上数据（如交易活跃度）
+  enabled: true  # 是否启用Glassnode数据采集，true为启用，false为禁用
+  api_key: "your_glassnode_api_key"  # Glassnode API密钥，从Glassnode官网获取
+
+lunarcrush_api:  # LunarCrush API配置，用于获取市场恐惧指数
+  enabled: true  # 是否启用LunarCrush数据采集，true为启用，false为禁用
+  api_key: "your_lunarcrush_api_key"  # LunarCrush API密钥，从LunarCrush官网获取
+
+gateio_api:  # Gate.io API配置，用于交易执行和价格查询
+  enabled: true  # 是否启用Gate.io交易功能，true为启用，false为禁用
+  api_key: "your_gateio_api_key"  # Gate.io API密钥，从Gate.io官网获取
+  secret: "your_gateio_secret"  # Gate.io API Secret，从Gate.io官网获取
+
+trading_params:  # 交易参数配置，用于风险管理和交易策略
+  leverage: 5  # 杠杆倍数，默认5倍
+  take_profit_percentage: 5.0  # 止盈百分比，默认5%
+  stop_loss_percentage: 2.0  # 止损百分比，默认2%
+  max_position: 20.0  # 最大持仓百分比，默认20%
+  daily_trade_limit: 10  # 每日交易次数限制，默认10次
+  circuit_breaker_loss: 10.0  # 熔断亏损百分比，默认10%
