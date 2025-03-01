@@ -1,22 +1,24 @@
 import xgboost as xgb
 import pandas as pd
-import numpy as np  # 保留，因np.clip使用
+import numpy as np
 import os
 from utils.logger import setup_logger
 from utils.data_utils import normalize_data
 
 logger = setup_logger("token_scoring")
 
-
 class TokenScoring:
     def __init__(self, model_path="models/token_scoring_model.json", blacklist_path="models/blacklist.txt"):
+        """初始化XGBoost代币评分模型，支持GPU"""
         self.model_path = model_path
         self.blacklist_path = blacklist_path
         self.model = xgb.XGBRegressor(
             objective="reg:squarederror",  # noqa: squarederror is correct
             n_estimators=100,
             learning_rate=0.1,
-            max_depth=5
+            max_depth=5,
+            tree_method="gpu_hist",  # 启用GPU加速
+            predictor="gpu_predictor"  # GPU预测
         )
         self.weights = {
             "liquidity": 0.30,
@@ -37,6 +39,7 @@ class TokenScoring:
             logger.warning("未找到预训练模型，需要训练")
 
     def load_blacklist(self):
+        """加载黑名单"""
         blacklist = set()
         if os.path.exists(self.blacklist_path):
             with open(self.blacklist_path, "r") as f:
@@ -45,12 +48,17 @@ class TokenScoring:
         return blacklist
 
     def update_blacklist(self, address):
-        self.blacklist.add(address)
-        with open(self.blacklist_path, "a") as f:
-            f.write(f"{address}\n")
-        logger.info(f"添加地址 {address} 到黑名单")
+        """更新黑名单"""
+        try:
+            self.blacklist.add(address)
+            with open(self.blacklist_path, "a") as f:
+                f.write(f"{address}\n")
+            logger.info(f"添加地址 {address} 到黑名单")
+        except Exception as e:
+            logger.error(f"更新黑名单失败: {e}")
 
     def preprocess_features(self, features):
+        """预处理特征"""
         try:
             required_features = ["liquidity", "social_sentiment", "holder_growth", "creator_reputation", "tx_volume"]
             processed = {key: features.get(key, 0.0) for key in required_features}
@@ -59,12 +67,14 @@ class TokenScoring:
             if creator_address in self.blacklist:
                 logger.warning(f"地址 {creator_address} 在黑名单中，评分强制为0")
                 return None, 0.0
-            return normalize_data(df).iloc[0].to_dict(), None  # 优化，去除normalized_df
+            normalized_df = normalize_data(df)
+            return normalized_df.iloc[0].to_dict(), None
         except Exception as e:
             logger.error(f"特征预处理错误: {e}")
             return None, 0.5
 
     def score_token(self, features):
+        """评分代币"""
         try:
             processed_features, forced_score = self.preprocess_features(features)
             if processed_features is None:
@@ -72,27 +82,33 @@ class TokenScoring:
             df = pd.DataFrame([processed_features])
             base_score = self.model.predict(df)[0]
             weighted_score = (
-                    processed_features["liquidity"] * self.weights["liquidity"] +
-                    processed_features["social_sentiment"] * self.weights["social_sentiment"] +
-                    processed_features["holder_growth"] * self.weights["holder_growth"] +
-                    processed_features["creator_reputation"] * self.weights["creator_reputation"] +
-                    processed_features["tx_volume"] * self.weights["other"]
+                processed_features["liquidity"] * self.weights["liquidity"] +
+                processed_features["social_sentiment"] * self.weights["social_sentiment"] +
+                processed_features["holder_growth"] * self.weights["holder_growth"] +
+                processed_features["creator_reputation"] * self.weights["creator_reputation"] +
+                processed_features["tx_volume"] * self.weights["other"]
             )
             final_score = np.clip((base_score + weighted_score) / 2, 0, 1)
             logger.info(f"代币评分: {final_score:.3f}, 特征: {processed_features}")
             return final_score
         except Exception as e:
             logger.error(f"评分错误: {e}")
-            return 0.5  # 添加except修复语法
+            return 0.5
 
     def train_model(self, data, target, validation_split=0.2):
+        """训练XGBoost模型，支持GPU"""
         try:
             x = pd.DataFrame(data)
             y = pd.Series(target)
             split_idx = int(len(x) * (1 - validation_split))
             x_train, x_val = x.iloc[:split_idx], x.iloc[split_idx:]
             y_train, y_val = y.iloc[:split_idx], y.iloc[split_idx:]
-            self.model.fit(x_train, y_train, eval_set=[(x_val, y_val)], early_stopping_rounds=10, verbose=False)
+            self.model.fit(
+                x_train, y_train,
+                eval_set=[(x_val, y_val)],
+                early_stopping_rounds=10,
+                verbose=False
+            )
             self.model.save_model(self.model_path)
             val_score = self.model.score(x_val, y_val)
             logger.info(f"模型训练完成，验证集R²得分: {val_score:.3f}")
@@ -100,15 +116,18 @@ class TokenScoring:
             logger.error(f"模型训练错误: {e}")
 
     def update_model(self, new_data, new_target):
+        """在线更新模型，支持GPU"""
         try:
             x = pd.DataFrame(new_data)
             y = pd.Series(new_target)
-            self.model.fit(x, y, xgb_model=self.model_path)
+            self.model.fit(
+                x, y,
+                xgb_model=self.model_path  # 从现有模型继续训练
+            )
             self.model.save_model(self.model_path)
             logger.info("模型在线更新完成")
         except Exception as e:
             logger.error(f"模型更新错误: {e}")
-
 
 if __name__ == "__main__":
     scoring = TokenScoring()

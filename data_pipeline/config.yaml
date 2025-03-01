@@ -3,61 +3,91 @@ solana_rpc: "wss://api.mainnet-beta.solana.com"  # Solana WebSocket地址，用�
 twitter_api:  # Twitter API配置，用于采集Twitter社群数据
   enabled: true  # 是否启用Twitter数据采集，true为启用，false为禁用
   keys:  # Twitter API密钥列表，可配置多个账号
-    - consumer_key: "your_key1"  # Twitter Consumer Key，从Twitter Developer Portal获取
-      consumer_secret: "your_secret1"  # Twitter Consumer Secret，从Twitter Developer Portal获取
-      access_token: "your_token1"  # Twitter Access Token，从Twitter Developer Portal获取
-      access_token_secret: "your_token_secret1"  # Twitter Access Token Secret，从Twitter Developer Portal获取
-    - consumer_key: "your_key2"  # 第二个Twitter账号的Consumer Key
-      consumer_secret: "your_secret2"  # 第二个Twitter账号的Consumer Secret
-      access_token: "your_token2"  # 第二个Twitter账号的Access Token
-      access_token_secret: "your_token_secret2"  # 第二个Twitter账号的Access Token Secret
+    - consumer_key: "iqrUm3UOxZUxF7LZK1JpwwAv0"  # Twitter Consumer Key，从Twitter Developer Portal获取
+      consumer_secret: "Fbw57HDmLIlFguknXzqQAjdtnsyjWcUOTubpovZVBC4Mh3u0op"  # Twitter Consumer Secret，从Twitter Developer Portal获取
+      access_token: "1800956701367054336-b0kw8cp7IYoARS8bLFH8AVwIrxlJ23"  # Twitter Access Token，从Twitter Developer Portal获取
+      access_token_secret: "ACR4S3y4KvuBJ6cBi4nMiyQbiptT8JLFnhIIThJl0uJR3"  # Twitter Access Token Secret，从Twitter Developer Portal获取
+    - consumer_key: "s6xZGwbFjzZqTmi3EJFrbkyk9"  # 第二个Twitter账号的Consumer Key
+      consumer_secret: "sTSQ21HikW2TJv26qdzQEuo7x8e1tjVfmfv0Z79XE7OETwaloF"  # 第二个Twitter账号的Consumer Secret
+      access_token: "1805599403123613696-ODCBEpUYmyiWTKaaHbPnMj9CH0xFWk"  # 第二个Twitter账号的Access Token
+      access_token_secret: "WH6ViK9QvFC7cmUuVE49oQqnTY5lM24tyRCgMc2x4UpmK"  # 第二个Twitter账号的Access Token Secret
+    - consumer_key: "X6Yc5bFbOei6Gho7JDYVUsMSe"  # 第三个Twitter账号的Consumer Key
+      consumer_secret: "xUPGK2cMuTfwBSgN5UWL7HsvDGXb5izBzlTtGkPvDWB6rno59C"  # 第二个Twitter账号的Consumer Secret
+      access_token: "1801813069921710080-0dvsfcs0N6akP3J4NI1wQrLdL9Iqf5"  # 第二个Twitter账号的Access Token
+      access_token_secret: "xaZLs3vNfO4pg76ySsbI3mrn9YDGUQM0uQ6ffLR4lmf5y"  # 第二个Twitter账号的Access Token Secret
+    - consumer_key: "scguLhsdcszYFgPiZudOd21Bl"  # 第四个Twitter账号的Consumer Key
+      consumer_secret: "qYo0f7oxv7ScC4uMDB4CUPGoKRYtWosAfHe7sQheGm4veRggRg"  # 第二个Twitter账号的Consumer Secret
+      access_token: "1804923472038223872-3eUFj8U6iynWfD9Ry9FR91dn3H1nrT"  # 第二个Twitter账号的Access Token
+      access_token_secret: "0OZzVLihJiHmRTSlfuwPItbCw27RlNPh7eeEE6CLKphcl"  # 第二个Twitter账号的Access Token Secret
+    - consumer_key: "ahhYTbswUwBb0uTA5Iby64JGb"  # 第五个Twitter账号的Consumer Key
+      consumer_secret: "M0dB18Iass5hQp34YD5SC0pPAmptGeMlC3Z2nPbgb9OmP6vgDf"  # 第二个Twitter账号的Consumer Secret
+      access_token: "1801600341902753792-WHWecpl8cZyiWv0XvIkBsGuzGfZNQ2"  # 第二个Twitter账号的Access Token
+      access_token_secret: "68m5T7q0Y7SNiDjqXC8DMavIDGDDsnQTkbuwsBK0qbMyK"  # 第二个Twitter账号的Access Token Secret
+    - consumer_key: "6I5KKSiM79XKYTUtbjcUvuBrz"  # 第六个Twitter账号的Consumer Key
+      consumer_secret: "BapdvJoQyiSJViXDJoE2H4im5dwZ1lhslNc4XUdWva8yThG5k0"  # 第二个Twitter账号的Consumer Secret
+      access_token: "1804206290207674370-FXjDj504YaQR7L1LF08F3DLWmTlUwn"  # 第二个Twitter账号的Access Token
+      access_token_secret: "fVXU5ymMrEuKl5KxCXBLkaRAAe1WbfbBGH2rJLy5caLT6"  # 第二个Twitter账号的Access Token Secret
+    - consumer_key: "ECsBp0EX0wv053Gm3KGmEohfI"  # 第六个Twitter账号的Consumer Key
+      consumer_secret: "vnNdQC4OjRR92rV4l7SVfiXEMEvenTYxFYCEgtUspDVuru1stn"  # 第二个Twitter账号的Consumer Secret
+      access_token: "1805883884254433280-w4XfMXrGOTeYHHLrlJASQNdjGioxnb"  # 第二个Twitter账号的Access Token
+      access_token_secret: "gM0AUf4jrkxWAeQwToG9gauEOSxu1q1tB8F7QP6Y4PSVr"  # 第二个Twitter账号的Access Token Secret
 
 kafka:  # Kafka消息队列配置，用于实时数据流传输
   bootstrap_servers: "localhost:9092"  # Kafka服务器地址，格式为"host:port"
 
 database:  # 数据库配置，用于存储交易记录和分析数据
   dbname: "crypto_trading"  # 数据库名称
-  user: "your_user"  # 数据库用户名
-  password: "your_password"  # 数据库密码
+  user: "zhangxg828"  # 数据库用户名
+  password: "Zhang1027828xin@"  # 数据库密码
   host: "localhost"  # 数据库主机地址
   port: "5432"  # 数据库端口，默认PostgreSQL为5432
 
 pump_api:  # Pump链API配置（如Pump.fun），用于采集Pump链新代币数据
-  enabled: true  # 是否启用Pump链数据采集，true为启用，false为禁用
+  enabled: false  # 是否启用Pump链数据采集，true为启用，false为禁用
   token: "your_pump_api_token"  # Pump API密钥，若需要认证则从Pump官方获取
 
 binance_api:  # Binance API配置，用于WebSocket采集K线、价格等数据
-  enabled: true  # 是否启用Binance数据采集，true为启用，false为禁用
+  enabled: false  # 是否启用Binance数据采集，true为启用，false为禁用
   symbols: ["BTCUSDT", "ETHUSDT"]  # Binance监控的交易对列表，用逗号分隔
 
 telegram_api:  # Telegram API配置，用于采集Telegram社群消息
   enabled: true  # 是否启用Telegram数据采集，true为启用，false为禁用
-  api_id: "your_telegram_api_id"  # Telegram API ID，从my.telegram.org获取
-  api_hash: "your_telegram_api_hash"  # Telegram API Hash，从my.telegram.org获取
-  channels: ["CryptoChat", "BTCUpdates"]  # Telegram频道或群组列表，用逗号分隔
+  api_id: "25555585"  # Telegram API ID，从my.telegram.org获取
+  api_hash: "00349140ddf5aa4b5a1c2b1474278f4e"  # Telegram API Hash，从my.telegram.org获取
+  channels: ["BlockBeats", "sol/eth链冲狗群","GMGN Featured Signals(Lv2) - SOL","GMGN Sniper Bot(2) - Solana","Solana New Pool Alert - GMGN"]  # Telegram频道或群组列表，用逗号分隔
 
 discord_api:  # Discord API配置，用于采集Discord社群消息
-  enabled: true  # 是否启用Discord数据采集，true为启用，false为禁用
+  enabled: false  # 是否启用Discord数据采集，true为启用，false为禁用
   bot_token: "your_discord_bot_token"  # Discord Bot Token，从Discord Developer Portal获取
   channels: ["discord_channel_1", "discord_channel_2"]  # Discord频道列表，用逗号分隔
 
 glassnode_api:  # Glassnode API配置，用于获取链上数据（如交易活跃度）
-  enabled: true  # 是否启用Glassnode数据采集，true为启用，false为禁用
+  enabled: false  # 是否启用Glassnode数据采集，true为启用，false为禁用
   api_key: "your_glassnode_api_key"  # Glassnode API密钥，从Glassnode官网获取
 
 lunarcrush_api:  # LunarCrush API配置，用于获取市场恐惧指数
   enabled: true  # 是否启用LunarCrush数据采集，true为启用，false为禁用
-  api_key: "your_lunarcrush_api_key"  # LunarCrush API密钥，从LunarCrush官网获取
+  api_key: "5cz44ydclucafwpnr4hq7ue93fm6c794randvdyib"  # LunarCrush API密钥，从LunarCrush官网获取
 
 gateio_api:  # Gate.io API配置，用于交易执行和价格查询
   enabled: true  # 是否启用Gate.io交易功能，true为启用，false为禁用
-  api_key: "your_gateio_api_key"  # Gate.io API密钥，从Gate.io官网获取
-  secret: "your_gateio_secret"  # Gate.io API Secret，从Gate.io官网获取
+  api_key: "79bfa1b2edaeb1e42c705b0bfa243ff2"  # Gate.io API密钥，从Gate.io官网获取
+  secret: "087c3ae1a30e6503d36f56a972da5dc95328338697b36f085be7a68b0a043a6f"  # Gate.io API Secret，从Gate.io官网获取
 
 trading_params:  # 交易参数配置，用于风险管理和交易策略
   leverage: 5  # 杠杆倍数，默认5倍
-  take_profit_percentage: 5.0  # 止盈百分比，默认5%
-  stop_loss_percentage: 2.0  # 止损百分比，默认2%
+  take_profit_percentage: 5.0  # 止盈百分比，默认50%
+  stop_loss_percentage: 2.0  # 止损百分比，默认20%
   max_position: 20.0  # 最大持仓百分比，默认20%
-  daily_trade_limit: 10  # 每日交易次数限制，默认10次
-  circuit_breaker_loss: 10.0  # 熔断亏损百分比，默认10%
+  daily_trade_limit: 200  # 每日交易次数限制，默认30次
+  circuit_breaker_loss: 10.0  # 熔断亏损百分比，默认25%
+
+moralis_api:
+  enabled: true
+  api_keys:  # 多个API密钥列表
+    - "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjEzNDhjNTk2LWRlZTEtNDA5ZC05NjE0LWU0ZTM3Y2U4MzFjNiIsIm9yZ0lkIjoiNDM0MTgxIiwidXNlcklkIjoiNDQ2NjMzIiwidHlwZUlkIjoiMGQ1Mjg5MTYtZTk0OS00NzU2LThiMDUtMWMxMjk0NjRlZDYxIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3NDA3OTE2NjEsImV4cCI6NDg5NjU1MTY2MX0.qD-0QDnunNnA_j8Fb-tpe6X-G8ft2U9WPe8u4x34PoI"  # 第一个密钥
+    - "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6ImUyZTgzMTIyLWE2YjgtNDk5ZC05ZmIyLTA3NWQ2MGM5N2U1NiIsIm9yZ0lkIjoiNDM0MTg5IiwidXNlcklkIjoiNDQ2NjQxIiwidHlwZUlkIjoiZTZkNGNkYTQtNmQxNS00ODE1LWFlZDQtNWVlNTY4NGQ2MWI3IiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3NDA3OTUyNDEsImV4cCI6NDg5NjU1NTI0MX0.YeU_rFrIhKshHShZEG3EtiCstDFlZX2NAM27J3_tzuE"  # 第二个密钥
+    - #"your_moralis_api_key_3"  # 第三个密钥
+
+solana_wallet:
+  private_key: "2KLB6hshfQmuwY6cVazEcnKKaGn77FdtAM8r9GDDu7LHZPcceqEQKwQJvj6uBczS8yRnXCZohjrpxThLnx1e6d2U"

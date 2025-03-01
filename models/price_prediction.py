@@ -8,20 +8,22 @@ import os
 
 logger = setup_logger("price_prediction")
 
-
 class PricePredictor(nn.Module):
-    def __init__(self, input_size=5, hidden_size=64, num_layers=2, output_size=24):
+    def __init__(self, input_size=5, hidden_size=64, num_layers=2, output_size=24, model_path="models/price_predictor.pth"):
+        """初始化LSTM价格预测模型，支持GPU"""
         super().__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.output_size = output_size
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_size, output_size)
-        self.model_path = "models/price_predictor.pth"
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True).to(self.device)
+        self.fc = nn.Linear(hidden_size, output_size).to(self.device)
+        self.model_path = model_path
         self.scaler = MinMaxScaler()
 
     def forward(self, x):
+        """前向传播"""
         out, _ = self.lstm(x)
         out = self.fc(out[:, -1, :])
         return out
@@ -35,12 +37,13 @@ class PricePredictor(nn.Module):
             price_data = data_array[:, 0].reshape(-1, 1)
             normalized_price = self.scaler.transform(price_data)
             data_array[:, 0] = normalized_price.flatten()
-            return torch.tensor(data_array, dtype=torch.float32)
+            return torch.tensor(data_array, dtype=torch.float32).to(self.device)
         except Exception as e:
             logger.error(f"数据预处理错误: {e}")
             return None
 
     def inverse_transform(self, pred):
+        """反归一化预测结果"""
         try:
             pred_array = pred.detach().cpu().numpy()
             return self.scaler.inverse_transform(pred_array.reshape(-1, 1)).flatten()
@@ -53,7 +56,7 @@ class PricePredictor(nn.Module):
         try:
             if not os.path.exists(self.model_path):
                 raise FileNotFoundError("未找到训练好的模型，请先训练")
-            self.load_state_dict(torch.load(self.model_path, map_location="cpu"))
+            self.load_state_dict(torch.load(self.model_path, map_location=self.device))
             self.eval()
             processed_data = self.preprocess_data(_predict_data)
             if processed_data is None:
@@ -69,7 +72,7 @@ class PricePredictor(nn.Module):
             return None
 
     def train_model(self, _train_data, _train_targets, time_steps=10, epochs=100, batch_size=32, validation_split=0.2):
-        """训练价格预测模型"""
+        """训练价格预测模型，支持GPU"""
         try:
             data_array = np.array(_train_data)
             target_array = np.array(_train_targets)
@@ -87,16 +90,14 @@ class PricePredictor(nn.Module):
             train_targets = target_seq[:split_idx]
             val_targets = target_seq[split_idx:]
 
-            train_data_tensor = torch.tensor(train_data, dtype=torch.float32)
-            train_targets_tensor = torch.tensor(train_targets, dtype=torch.float32)
-            val_data_tensor = torch.tensor(val_data, dtype=torch.float32)
-            val_targets_tensor = torch.tensor(val_targets, dtype=torch.float32)
+            train_data_tensor = torch.tensor(train_data, dtype=torch.float32).to(self.device)
+            train_targets_tensor = torch.tensor(train_targets, dtype=torch.float32).to(self.device)
+            val_data_tensor = torch.tensor(val_data, dtype=torch.float32).to(self.device)
+            val_targets_tensor = torch.tensor(val_targets, dtype=torch.float32).to(self.device)
 
             train_dataset = torch.utils.data.TensorDataset(train_data_tensor, train_targets_tensor)
             train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            self.to(device)
             optimizer = optim.Adam(self.parameters(), lr=0.001)
             criterion = nn.MSELoss()
 
@@ -104,7 +105,7 @@ class PricePredictor(nn.Module):
                 self.train()
                 total_loss = 0
                 for batch_data, batch_targets in train_loader:
-                    batch_data, batch_targets = batch_data.to(device), batch_targets.to(device)
+                    batch_data, batch_targets = batch_data.to(self.device), batch_targets.to(self.device)
                     optimizer.zero_grad()
                     output = self.forward(batch_data)
                     loss = criterion(output, batch_targets)
@@ -114,21 +115,23 @@ class PricePredictor(nn.Module):
 
                 self.eval()
                 with torch.no_grad():
-                    val_output = self.forward(val_data_tensor.to(device))
-                    val_loss = criterion(val_output, val_targets_tensor.to(device))
+                    val_output = self.forward(val_data_tensor)
+                    val_loss = criterion(val_output, val_targets_tensor)
 
                 if epoch % 10 == 0:
                     logger.info(
-                        f"Epoch {epoch}, Train Loss: {total_loss / len(train_loader):.4f}, Val Loss: {val_loss.item():.4f}")
+                        f"Epoch {epoch}, Train Loss: {total_loss / len(train_loader):.4f}, Val Loss: {val_loss.item():.4f}"
+                    )
 
             torch.save(self.state_dict(), self.model_path)
-            logger.info("价格预测模型训练完成并保存")
+            logger.info(f"价格预测模型训练完成并保存至: {self.model_path}")
         except Exception as e:
             logger.error(f"模型训练错误: {e}")
 
     def update_model(self, new_data, new_targets, time_steps=10, epochs=10):
+        """在线更新模型，支持GPU"""
         try:
-            self.load_state_dict(torch.load(self.model_path))
+            self.load_state_dict(torch.load(self.model_path, map_location=self.device))
             new_data_array = np.array(new_data)
             new_target_array = np.array(new_targets)
             new_data_seq = []
@@ -137,29 +140,26 @@ class PricePredictor(nn.Module):
                 new_data_seq.append(new_data_array[i:i + time_steps])
                 new_target_seq.append(new_target_array[i + time_steps - 1])
 
-            data_tensor = torch.tensor(np.array(new_data_seq), dtype=torch.float32)
-            target_tensor = torch.tensor(np.array(new_target_seq), dtype=torch.float32)
+            data_tensor = torch.tensor(np.array(new_data_seq), dtype=torch.float32).to(self.device)
+            target_tensor = torch.tensor(np.array(new_target_seq), dtype=torch.float32).to(self.device)
 
             optimizer = optim.Adam(self.parameters(), lr=0.0001)
             criterion = nn.MSELoss()
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            self.to(device)
 
             self.train()
             for epoch in range(epochs):
                 optimizer.zero_grad()
-                output = self.forward(data_tensor.to(device))
-                loss = criterion(output, target_tensor.to(device))
+                output = self.forward(data_tensor)
+                loss = criterion(output, target_tensor)
                 loss.backward()
                 optimizer.step()
                 if epoch % 5 == 0:
                     logger.info(f"Update Epoch {epoch}, Loss: {loss.item():.4f}")
 
             torch.save(self.state_dict(), self.model_path)
-            logger.info("模型在线更新完成")
+            logger.info(f"模型在线更新完成并保存至: {self.model_path}")
         except Exception as e:
             logger.error(f"模型更新错误: {e}")
-
 
 if __name__ == "__main__":
     np.random.seed(42)

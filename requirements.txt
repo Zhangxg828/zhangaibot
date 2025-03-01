@@ -11,7 +11,7 @@ torch==2.6.0                # PyTorch，用于价格预测、强化学习、自�
 transformers==4.49.0        # Hugging Face Transformers，用于情绪分析和NLP交互
 scikit-learn==1.6.1         # 孤立森林（异常检测）、数据拆分和特征预处理
 joblib==1.4.2               # 模型保存与加载
-
+torch==2.6.0+cu126
 # 交易所和区块链
 ccxt==4.4.62                # 交易所API集成（如Binance、Gate.io）
 solana==0.36.6              # Solana区块链交互，用于链上数据采集

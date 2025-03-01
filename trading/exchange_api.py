@@ -1,7 +1,8 @@
-import ccxt
 from utils.logger import setup_logger
+import ccxt
 
 logger = setup_logger("exchange_api")
+
 
 class GateIOAPI:
     def __init__(self, api_key, secret):
@@ -11,65 +12,53 @@ class GateIOAPI:
             "enableRateLimit": True
         })
         self.client.load_markets()
+        logger.info("Gate.io API 初始化完成")
 
-    def get_price(self, symbol):
-        """获取当前价格"""
+    def futures_trade(self, contract, side, size, price, leverage, take_profit=None, stop_loss=None):
+        """执行Gate.io期货交易"""
         try:
-            ticker = self.client.fetch_ticker(symbol)
-            return ticker["last"]
-        except Exception as e:
-            logger.error(f"获取价格错误: {e}")
-            return None
+            # 设置杠杆
+            self.client.set_leverage(leverage, contract, params={"settle": "usdt"})
 
-    def spot_trade(self, symbol, side, amount, price=None):
-        """现货交易"""
-        try:
+            # 下单
             order = self.client.create_order(
-                symbol=symbol,
-                type="market" if not price else "limit",
-                side=side,
-                amount=amount,
-                price=price
-            )
-            logger.info(f"现货交易: {side} {symbol}, 数量: {amount}")
-            return order
-        except Exception as e:
-            logger.error(f"现货交易错误: {e}")
-            return None
-
-    def futures_trade(self, symbol, side, amount, leverage=5, take_profit=None, stop_loss=None):
-        """合约交易"""
-        try:
-            self.client.options["defaultType"] = "futures"
-            self.client.set_leverage(leverage, symbol)
-            order = self.client.create_order(
-                symbol=symbol,
+                symbol=contract,
                 type="market",
                 side=side,
-                amount=amount
+                amount=size,
+                price=price,
+                params={"settle": "usdt", "contract": contract}
             )
+            trade_id = order["id"]  # 修改变量名为 trade_id
+
+            # 设置止盈止损
             if take_profit:
                 self.client.create_order(
-                    symbol=symbol,
+                    symbol=contract,
                     type="limit",
                     side="sell" if side == "buy" else "buy",
-                    amount=amount,
-                    price=take_profit
+                    amount=size,
+                    price=take_profit,
+                    params={"settle": "usdt", "trigger_price": take_profit, "contract": contract}
                 )
             if stop_loss:
                 self.client.create_order(
-                    symbol=symbol,
-                    type="market",  # 改为market类型
+                    symbol=contract,
+                    type="limit",
                     side="sell" if side == "buy" else "buy",
-                    amount=amount,
-                    params={"stopPrice": stop_loss}  # 使用params设置止损价格
+                    amount=size,
+                    price=stop_loss,
+                    params={"settle": "usdt", "trigger_price": stop_loss, "contract": contract}
                 )
-            logger.info(f"合约交易: {side} {symbol}, 杠杆: {leverage}")
-            return order
+
+            logger.info(f"Gate.io期货交易成功: {contract} - {side} {size} @ {price}, Trade ID: {trade_id}")
+            return trade_id
         except Exception as e:
-            logger.error(f"合约交易错误: {e}")
-            return None
+            logger.error(f"Gate.io期货交易失败: {e}")
+            raise
+
 
 if __name__ == "__main__":
-    api = GateIOAPI("your_key", "your_secret")
-    print(api.get_price("SOL/USDT"))
+    api = GateIOAPI("your_api_key", "your_secret")
+    local_trade_id = api.futures_trade("BTC_USDT", "buy", 1, 50000, 5, 51000, 49000)
+    print(f"Trade ID: {local_trade_id}")
